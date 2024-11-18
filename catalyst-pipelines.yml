@@ -5,8 +5,8 @@ runners:
 jobs:
   install-cli:
     steps:
-      - echo "node -v"
-      - echo "npm -v"
+      - node -v
+      - npm -v
       - npm install -g zcatalyst-cli@beta
       - catalyst -v
   build:
@@ -21,7 +21,7 @@ jobs:
           type: zip
           location: stratus://alien-city-prisma-development/build/artifacts
           regex:
-            - '**/*'
+            - '.*'
     steps:
       - rm -rf ./node_modules
       - npm install --omit=dev
