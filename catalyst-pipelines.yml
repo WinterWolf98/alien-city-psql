@@ -21,10 +21,11 @@ jobs:
           type: zip
           location: stratus://alien-city-prisma-development/build/artifacts
           regex:
-            - '.*'
+            - '**/*'
     steps:
       - rm -rf ./node_modules
       - npm install --omit=dev
+      - ls -la
   catalyst-deploy:
     steps:
       - catalyst deploy --org 870792532 --project 21874000000008212
