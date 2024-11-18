@@ -15,18 +15,18 @@ jobs:
       - npm run setup
       - npm run build
   install-prod:
-    artifacts:
-      upload:
-        - name: alien_city_build.zip
-          type: file
-          location: stratus://alien-city-prisma-development/build/artifacts
-          file: ./build.zip
+    # artifacts:
+    #   upload:
+    #     - name: alien_city_build.zip
+    #       type: file
+    #       location: stratus://alien-city-prisma-development/build/artifacts
+    #       file: ./build.zip
     steps:
       - rm -rf ./node_modules
       - npm install --omit=dev
-      - pwd
-      - ls -la
-      - zip -r build.zip ./
+    #   - pwd
+    #   - ls -la
+    #   - zip -r build.zip ./
   catalyst-deploy:
     steps:
       - catalyst deploy --org 870792532 --project 21874000000008212
