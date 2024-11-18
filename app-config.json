@@ -5,8 +5,7 @@
 	"env_variables": {},
 	"memory": 256,
 	"scripts": {
-		"preserve": "npm run build",
-		"predeploy": "npm run build"
+		"preserve": "npm run build"
 	},
 	"catalyst_auth": true,
 	"login_redirect": "/"
