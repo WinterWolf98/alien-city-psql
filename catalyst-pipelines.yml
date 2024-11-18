@@ -3,37 +3,15 @@ runners:
   high:
     config-id: 3
 jobs:
-  install-cli:
+  build-prod:
     steps:
-      - node -v
-      - npm -v
       - npm install -g zcatalyst-cli@beta
-      - catalyst -v
-  build:
-    steps:
       - npm install
-      - npm run setup
       - npm run build
-  install-prod:
-    # artifacts:
-    #   upload:
-    #     - name: alien_city_build.zip
-    #       type: file
-    #       location: stratus://alien-city-prisma-development/build/artifacts
-    #       file: ./build.zip
-    steps:
       - rm -rf ./node_modules
       - npm install --omit=dev
-    #   - pwd
-    #   - ls -la
-    #   - zip -r build.zip ./
-  catalyst-deploy:
-    steps:
       - catalyst deploy --org 870792532 --project 21874000000008212
 stages:
-  - name: build
+  - name: deploy
     jobs:
-      - install-cli
-      - build
-      - install-prod
-      - catalyst-deploy
+        - build-prod
