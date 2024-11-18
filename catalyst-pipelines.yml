@@ -18,14 +18,15 @@ jobs:
     artifacts:
       upload:
         - name: alien_city_build.zip
-          type: zip
+          type: file
           location: stratus://alien-city-prisma-development/build/artifacts
-          regex:
-            - .*
+          file: ./build.zip
     steps:
       - rm -rf ./node_modules
       - npm install --omit=dev
+      - pwd
       - ls -la
+      - zip -r build.zip ./
   catalyst-deploy:
     steps:
       - catalyst deploy --org 870792532 --project 21874000000008212
