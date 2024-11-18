@@ -1,4 +1,7 @@
 version: 1
+runners:
+  high:
+    config-id: 3
 pipeline-image: node:20
 jobs:
   install-cli:
@@ -15,7 +18,7 @@ jobs:
   install-prod:
     artifacts:
       upload:
-        - name: alien_city_build_<< env.BUILD_ID >>
+        - name: alien_city_build_<< env.BUILD_ID >>.zip
           type: zip
           location: stratus://alien-city-prisma-development/build/artifacts
           regex:
