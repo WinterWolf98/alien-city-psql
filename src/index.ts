@@ -2,13 +2,14 @@ import express from 'express';
 import catalyst from 'zcatalyst-sdk-node';
 import moment from 'moment';
 import objects from './db/objects.js';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import type { ICatalystUser } from 'zcatalyst-sdk-node/lib/utils/pojo/common.js';
+import { fileURLToPath } from 'url';
 
 const app = express();
 
 app.use(express.json());
-app.use(express.static(join(import.meta.dirname, '../public')));
+app.use(express.static(join(dirname(fileURLToPath(import.meta.url)), '../public')));
 
 
 const { alienCity } = objects;

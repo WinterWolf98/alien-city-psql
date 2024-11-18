@@ -1,6 +1,7 @@
 .vscode
 migrations
 src
+.git
 .gitignore
 catalyst.json
 LICENSE
