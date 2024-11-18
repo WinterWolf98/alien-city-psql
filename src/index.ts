@@ -47,7 +47,9 @@ app.post('/api/alien', async (req, res) => {
         }
 
         const cityDetails = await alienCity.findFirst({ where: {
-            cityname: city
+            cityname: {
+                contains: city
+            }
         }});
 
         if(cityDetails) {
