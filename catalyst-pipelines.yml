@@ -2,7 +2,6 @@ version: 1
 runners:
   high:
     config-id: 3
-pipeline-image: node:20
 jobs:
   install-cli:
     steps:
