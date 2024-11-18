@@ -17,11 +17,11 @@ jobs:
   install-prod:
     artifacts:
       upload:
-        - name: alien_city_build_<< env.BUILD_ID >>.zip
+        - name: alien_city_build.zip
           type: zip
           location: stratus://alien-city-prisma-development/build/artifacts
           regex:
-            - '**/*'
+            - .*
     steps:
       - rm -rf ./node_modules
       - npm install --omit=dev
