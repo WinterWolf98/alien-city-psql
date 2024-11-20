@@ -4,5 +4,15 @@
       "source": ".",
       "name": "alien-city"
     }
-  ]
+  ],
+  "client": {
+    "source": "client"
+  },
+  "functions": {
+    "targets": [
+      "api"
+    ],
+    "ignore": [],
+    "source": "functions"
+  }
 }

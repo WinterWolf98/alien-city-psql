@@ -1,0 +1,11 @@
+{
+	"name": "api",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "prasanna.ga@zohocorp.com",
+	"dependencies": {
+		"express": "^4.21.1",
+		"http-proxy": "^1.18.1",
+		"zcatalyst-sdk-node": "latest"
+	}
+}

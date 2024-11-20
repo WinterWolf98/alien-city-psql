@@ -1,0 +1,13 @@
+{
+	"deployment": {
+		"name": "api",
+		"stack": "node18",
+		"type": "advancedio",
+		"env_variables": {
+			"PROXY_ORIGIN": "http://localhost:3001/api"
+		}
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

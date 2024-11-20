@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import catalyst from 'zcatalyst-sdk-node';
 import moment from 'moment';
 import objects from './db/objects.js';
@@ -18,6 +19,8 @@ const { alienCity } = objects;
 // const tableName = 'Alien City'; // The table created in the Data Store
 // const columnName = 'CityName'; // The column created in the table
 
+app.use(cors());
+
 app.use(/^\/?$/, (req, res) => {
     console.log('redirecting');
     res.redirect('/index.html');
@@ -28,7 +31,9 @@ app.use('/api', async (req, res, next) => {
     const currentUser = await catalystApp.userManagement().getCurrentUser().catch((er) => console.log('No user !!!'));
 
     if(!currentUser) {
-        res.redirect('/__catalyst/auth/login');
+        req.headers.origin === req.headers.origin
+         ? res.redirect('/__catalyst/auth/login')
+         : res.status(401).send('Un-authorized request');
         return;
     }
 
@@ -36,6 +41,8 @@ app.use('/api', async (req, res, next) => {
     res.locals.user = currentUser;
     next();
 });
+
+app.options('*', cors());
 
 app.post('/api/alien', async (req, res) => {
     try {
