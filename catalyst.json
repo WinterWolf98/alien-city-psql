@@ -10,7 +10,8 @@
   },
   "functions": {
     "targets": [
-      "api"
+      "api",
+      "auth_fn"
     ],
     "ignore": [],
     "source": "functions"

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoho MCP - Login</title>
+    <link rel="stylesheet" href="https://cdn.auth0.com/styleguide/core/2.0.5/core.min.css" />
+    <link rel="stylesheet" href="https://cdn.auth0.com/styleguide/components/2.0.0/components.min.css" />
+    <script src="https://static.zohocdn.com/catalyst/sdk/js/4.4.0/catalystWebSDK.js"></script>
+    <script src="/__catalyst/sdk/init.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .auth-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            background-color: #eb5424;
+            color: white;
+        }
+
+        .auth-button:hover {
+            background-color: #d44a20;
+        }
+
+        .auth-button.secondary {
+            background-color: #6c757d;
+        }
+
+        .auth-button.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Welcome to Zoho MCP</h1>
+        <p class="description">Choose your preferred login method to continue</p>
+
+        <div class="auth-buttons">
+            <button id="login" class="auth-button">Log in with Email</button>
+            <button id="authorize" class="auth-button">Log in with Universal Login</button>
+            <button id="pwd-start" class="auth-button secondary">Passwordless Login</button>
+            <button id="logout" class="auth-button secondary">Log out</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.auth0.com/js/auth0/9.28.0/auth0.min.js"></script>
+    <script>
+        const loginButton = document.getElementById('login');
+        const authButton = document.getElementById('authorize');
+        const pwdStartButton = document.getElementById('pwd-start');
+        const logoutButton = document.getElementById('logout');
+
+        const options = {
+            domain: 'dev-dlkgz6ocuog785yx.us.auth0.com',
+            clientID: 'AhtzENqVA8RyorEPjUHcRGyTPz8pn7Fl',
+            redirectUri: window.location.origin,
+            responseType: 'id_token token',
+            scope: 'openid profile email'
+        };
+
+        var passwordlessEmail;
+
+        // Function to handle successful Auth0 authentication and generate Catalyst token
+        async function handleSuccessfulAuth(authResult) {
+            try {
+                // Get user profile from Auth0
+                const webAuth = new auth0.WebAuth(options);
+                const userProfile = await new Promise((resolve, reject) => {
+                    webAuth.client.userInfo(authResult.accessToken, (err, profile) => {
+                        if (err) reject(err);
+                        else resolve(profile);
+                    });
+                });
+                console.log(userProfile);
+
+                // Call Catalyst auth function to generate custom token
+                const response = await fetch('/server/auth_fn/authorize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email_id: userProfile.email,
+                        first_name: userProfile.given_name || userProfile.name?.split(' ')[0] || '',
+                        last_name: userProfile.family_name || userProfile.name?.split(' ').slice(1).join(' ') || ''
+                    })
+                });
+
+                console.log(response);
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate Catalyst token');
+                }
+
+                const customToken = await response.json();
+                console.log(customToken);
+
+                // Sign in with Catalyst using the custom token and wait for the response
+                const signInResponse = await catalyst.auth.signinWithJwt(() => Promise.resolve({
+                    client_id: customToken.client_id,
+                    scopes: customToken.scopes,
+                    jwt_token: customToken.jwt_token
+                }));
+
+                console.log(signInResponse);
+                // Verify that authentication is established
+                const isAuthenticated = await catalyst.auth.isUserAuthenticated();
+                console.log(isAuthenticated);
+                if (!isAuthenticated) {
+                    throw new Error('Failed to establish authentication');
+                }
+
+                // Only redirect after confirming both server auth and Catalyst auth are successful
+                window.location.href = '/app/auth0.html';
+            } catch (error) {
+                console.error('Authentication error:', error);
+                alert('Authentication failed. Please try again.');
+            }
+        }
+
+        // Universal Login
+        authButton.addEventListener('click', () => {
+            const webAuth = new auth0.WebAuth(options);
+            webAuth.authorize();
+        });
+
+        // Email Login
+        loginButton.addEventListener('click', () => {
+            const webAuth = new auth0.WebAuth(options);
+            const email = prompt('Enter your email address');
+            const password = prompt('Enter your password');
+
+            if (email && password) {
+                webAuth.login({
+                    username: email,
+                    password: password,
+                    realm: 'Username-Password-Authentication',
+                    onRedirecting: function (done) {
+                        console.log('Redirecting...');
+                        done();
+                    }
+                }, function (err) {
+                    console.error('Login error:', err);
+                });
+            }
+        });
+
+        // Passwordless Login
+        pwdStartButton.addEventListener('click', () => {
+            const webAuth = new auth0.WebAuth(options);
+            const email = prompt('Enter your email address');
+
+            if (email) {
+                webAuth.passwordlessStart({
+                    connection: 'email',
+                    send: 'code',
+                    email: email
+                }, (err, result) => {
+                    if (err) {
+                        console.error('Passwordless start error:', err);
+                        return;
+                    }
+                    console.log('Passwordless result:', result);
+                    passwordlessEmail = email;
+                    const verificationCode = prompt('Enter the verification code sent to your email');
+
+                    if (verificationCode) {
+                        webAuth.passwordlessLogin({
+                            connection: 'email',
+                            verificationCode: verificationCode,
+                            email: email
+                        }, (err, res) => {
+                            if (err) {
+                                console.error('Passwordless login error:', err);
+                                return;
+                            }
+                            handleSuccessfulAuth(res);
+                        });
+                    }
+                });
+            }
+        });
+
+        // Logout
+        logoutButton.addEventListener('click', () => {
+            const webAuth = new auth0.WebAuth(options);
+            webAuth.logout({
+                returnTo: window.location.origin
+            });
+        });
+
+        // Handle authentication callback
+        window.onload = function () {
+            const webAuth = new auth0.WebAuth(options);
+            webAuth.parseHash((err, authResult) => {
+                if (authResult && authResult.accessToken && authResult.idToken) {
+                    handleSuccessfulAuth(authResult);
+                } else if (err) {
+                    console.error('Error:', err);
+                }
+            });
+        };
+    </script>
+</body>
+
+</html>
